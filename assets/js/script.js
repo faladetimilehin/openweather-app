@@ -62,25 +62,39 @@ $(document).ready(function () {
   }
 
   function getWeatherAndForecast(cityName) {
+    var lat;
+    var lon;
     var weatherURL = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=b312a5f6b33bfedfd06f579030382318`;
     fetch(weatherURL)
       .then(function (response) {
         return response.json();
-      }).then(function (data) {
+      })
+      .then(function (data) {
+        console.log(data);
+        lat = data.coord.lat;
+        lon = data.coord.lon;
         displayCurrentWeather(data);
       });
 
-    var forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=b312a5f6b33bfedfd06f579030382318`;
+    var forecastURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=b312a5f6b33bfedfd06f579030382318`;
     fetch(forecastURL)
       .then(function (response) {
         return response.json();
-      }).then(function (data) {
+      })
+      .then(function (data) {
+        console.log(data);
+        clearForecast(); // Clear previous forecast cards
         displayForecast(data);
       });
   }
 
+  function clearForecast() {
+    $("#forecast .card-header, #forecast .row").empty();
+  }
 
   function displayCurrentWeather(currentData) {
+    lat = currentData.coord.lat;
+    lon = currentData.coord.lon;
     var cityName = currentData.name;
     var today = dayjs().format("DD/MM/YYYY");
     var img = $("<img>").attr("src", "http://openweathermap.org/img/w/" + currentData.weather[0].icon + ".png");
@@ -98,11 +112,12 @@ $(document).ready(function () {
     $("#today").empty().prepend(cityDiv);
 
     // Fetch forecast data for the current city
-    weatherForecast(cityName);
+    weatherForecast(lat, lon);
   }
 
-  function weatherForecast(searchCity) {
-    var queryURL = `https://api.openweathermap.org/data/2.5/forecast?q=${searchCity}&appid=b312a5f6b33bfedfd06f579030382318`;
+  function weatherForecast(lat, lon) {
+
+    var queryURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=b312a5f6b33bfedfd06f579030382318`;
     fetch(queryURL)
       .then(function (response) {
         return response.json();
@@ -113,36 +128,46 @@ $(document).ready(function () {
   }
 
   function displayForecast(data) {
-    if ($("#forecast .card-header").length === 0) {
-      // Display the "5-Day Forecast" heading only once
-      var headingForecast = $("<h3>").addClass("card-header").text("5-Day Forecast:");
-      var forecastList = $("<ul>").addClass("row row-cols-md-5 gap-4 ");
+    // Clear previous forecast cards
+    $("#forecast .card-header, #forecast ul").remove();
 
-      // Append the heading and forecast list to the forecast section
-      $("#forecast").append(headingForecast, forecastList);
-    }
+    // Create the "5-Day Forecast" heading
+    var headingForecast = $("<h3>").addClass("card-header").text("5-Day Forecast:");
 
-    // Loop through the first 5 elements in the forecast data
-    for (var i = 0; i < 5; i++) {
+    // Create a container for the forecast cards
+    var forecastContainer = $("<div>").addClass("row row-cols-md-5");
+
+    // Append the heading to the forecast section
+    $("#forecast").append(headingForecast);
+
+    // Loop through the forecast data for the next 5 days
+    for (var i = 0; i < 40; i += 8) {
       var forecastData = data.list[i];
-      var forecastDateTime = forecastData.dt_txt;
-      var forecastDate = forecastDateTime.split(" ")[0];
+      var forecastDate = forecastData.dt_txt.split(" ")[0];
       var tempForecast = (forecastData.main.temp - 273.15).toFixed(2);
       var windForecast = forecastData.wind.speed;
       var humidityForecast = forecastData.main.humidity;
 
-      var forecastItem = $("<li>").addClass("col-md-2 card bg-dark text-white mb-2");
+      // Create a forecast card
+      var forecastCard = $("<div>").addClass("col-md-2 card bg-dark text-white mb-2");
       var forecastCardBody = $("<div>").addClass("card-body p-2");
       var forecastDateDisplay = $("<h3>").addClass("card-title").text(" " + forecastDate);
-      var forecastImg = $("<img>").attr("src", "https://openweathermap.org/img/w/" + data.list[i].weather[0].icon + ".png");
+      var forecastImg = $("<img>").attr("src", "https://openweathermap.org/img/w/" + forecastData.weather[0].icon + ".png");
       var forecastTemp = $("<p>").addClass("card-text").text("Temp: " + tempForecast + " °C");
       var forecastWind = $("<p>").addClass("card-text").text("Wind: " + windForecast + " KPH");
       var forecastHumidity = $("<p>").addClass("card-text").text("Humidity: " + humidityForecast + " %");
 
+      // Append elements to the forecast card body
       forecastCardBody.append(forecastDateDisplay, forecastImg, forecastTemp, forecastWind, forecastHumidity);
-      forecastItem.append(forecastCardBody);
-      forecastList.append(forecastItem);
+      forecastCard.append(forecastCardBody);
+
+      // Append the forecast card to the forecast container
+      forecastContainer.append(forecastCard);
     }
+
+    // Append the forecast container to the forecast section
+    $("#forecast").append(forecastContainer);
   }
+
 
 });
