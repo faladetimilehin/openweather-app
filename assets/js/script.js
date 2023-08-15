@@ -1,8 +1,7 @@
-/* eslint-disable prettier/prettier */
 $(document).ready(function () {
 
 
-  // Load the saved cities from localStorage when the page loads
+  // Loading the saved cities from localStorage when the page loads
   var savedCities = JSON.parse(localStorage.getItem("savedCities")) || [];
   cities = savedCities;
   renderCityButton();
@@ -17,8 +16,8 @@ $(document).ready(function () {
     cities = [];
     localStorage.removeItem("savedCities");
     renderCityButton();
-    $("#forecast").empty(); // Clear the forecast when clearing cities
-    $("#today").empty(); // Clear the current weather when clearing cities
+    $("#forecast").empty(); // Clearing the forecast when clearing cities
+    $("#today").empty(); // Clearing the current weather when clearing cities
   }
   // Attach click event handler to city buttons
   $(document).on("click", ".city-btn", function () {
@@ -83,7 +82,7 @@ $(document).ready(function () {
       })
       .then(function (data) {
         console.log(data);
-        clearForecast(); // Clear previous forecast cards
+        clearForecast(); // Clearing previous forecast cards
         displayForecast(data);
       });
   }
@@ -111,7 +110,7 @@ $(document).ready(function () {
     cityDiv.append(pCity, img, pTemp, pWind, pHumidity);
     $("#today").empty().prepend(cityDiv);
 
-    // Fetch forecast data for the current city
+    // Fetching forecast data for the current city
     weatherForecast(lat, lon);
   }
 
@@ -132,10 +131,10 @@ $(document).ready(function () {
     $("#forecast .card-header, #forecast ul").remove();
 
     // Create the "5-Day Forecast" heading
-    var headingForecast = $("<h3>").addClass("card-header").text("5-Day Forecast:");
+    var headingForecast = $("<h3>").addClass("card-header mb-4").text("5-Day Forecast:");
 
     // Create a container for the forecast cards
-    var forecastContainer = $("<div>").addClass("row row-cols-md-5");
+    var forecastContainer = $("<div>").addClass("row row-cols-md-5 gap-4");
 
     // Append the heading to the forecast section
     $("#forecast").append(headingForecast);
@@ -149,7 +148,7 @@ $(document).ready(function () {
       var humidityForecast = forecastData.main.humidity;
 
       // Create a forecast card
-      var forecastCard = $("<div>").addClass("col-md-2 card bg-dark text-white mb-2");
+      var forecastCard = $("<div>").addClass("col-md-2 card bg-dark text-white mb-2 ");
       var forecastCardBody = $("<div>").addClass("card-body p-2");
       var forecastDateDisplay = $("<h3>").addClass("card-title").text(" " + forecastDate);
       var forecastImg = $("<img>").attr("src", "https://openweathermap.org/img/w/" + forecastData.weather[0].icon + ".png");
